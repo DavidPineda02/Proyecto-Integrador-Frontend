@@ -1,0 +1,127 @@
+/* ============================================
+    SECCIÓN DE TAREAS
+============================================ */
+
+.tasks-section {
+    margin-bottom: var(--spacing-2xl);
+}
+
+.tasks-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+}
+
+.tasks-header__title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+}
+
+.tasks-header__count {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    background-color: var(--color-gray-100);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-full);
+}
+
+.tasks-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+/* Estado vacío */
+.tasks-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-3xl) var(--spacing-xl);
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    border: 2px dashed var(--color-gray-200);
+    text-align: center;
+}
+
+.tasks-empty__icon {
+    color: var(--color-gray-300);
+    margin-bottom: var(--spacing-lg);
+}
+
+.tasks-empty__text {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.tasks-empty__subtext {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-tertiary);
+}
+
+/* Tarjeta de mensaje */
+.message-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+    border-left: 4px solid var(--color-primary);
+    animation: slideIn var(--transition-slow) ease-out;
+    transition: all var(--transition-base);
+}
+
+.message-card:hover {
+    box-shadow: var(--shadow-xl);
+    transform: translateY(-2px);
+}
+
+.message-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.message-card__user {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.message-card__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-sm);
+}
+
+.message-card__username {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+}
+
+.message-card__timestamp {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    font-weight: var(--font-weight-medium);
+}
+
+.message-card__content {
+    font-size: var(--font-size-base);
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    word-wrap: break-word;
+}
