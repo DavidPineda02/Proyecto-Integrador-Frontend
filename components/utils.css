@@ -1,0 +1,18 @@
+/* ============================================
+    UTILIDADES
+============================================ */
+
+.hidden {
+    display: none !important;
+}
+
+.fade-out {
+    animation: fadeOut var(--transition-base) ease-out forwards;
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+}
