@@ -1,5 +1,5 @@
 // Importamos la URL base de la API desde el archivo principal
-import { urlAPI } from "../script.js";
+import { urlAPI } from "../../../app.js";
 
 /**
  * Crea una nueva tarea enviando los datos a la API

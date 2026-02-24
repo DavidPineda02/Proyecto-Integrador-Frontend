@@ -1,0 +1,69 @@
+export function esTextoValido(texto) {
+    return texto.trim().length > 0;
+}
+
+export const validar = (form, reglas) => {
+    const errores = {};
+    let valido = true;
+
+    for (const name in reglas) {
+        const campo = form.elements[name];
+        const regla = reglas[name];
+
+        if (campo.type === 'text' || campo.type === 'textarea') {
+            const { esValido, mensaje } = validarCampoTexto(campo, regla);
+            if (!esValido) {
+                valido = false;
+                errores[name] = mensaje;
+            }
+        } else if (campo.type === 'select-one') {
+            const { esValido, mensaje } = validarCampoSelect(campo, regla);
+            if (!esValido) {
+                valido = false;
+                errores[name] = mensaje;
+            }
+        }
+    }
+
+    if (Object.keys(errores).length !== 0) {
+        valido = false;
+    }
+
+    return { valido, errores };
+};
+
+const validarCampoTexto = (elemento, regla) => {
+    if (regla.required && elemento.value.trim() === '') {
+        return {
+            esValido: false,
+            mensaje: regla.mensaje
+        };
+    }
+
+    if (regla.required && regla.min && regla.min > elemento.value.trim().length) {
+        return {
+            esValido: false,
+            mensaje: `El campo debe tener como mínimo ${regla.min} caracteres.`
+        };
+    }
+
+    if (regla.required && regla.max && regla.max < elemento.value.trim().length) {
+        return {
+            esValido: false,
+            mensaje: `El campo debe tener como máximo ${regla.max} caracteres.`
+        };
+    }
+
+    return { esValido: true };
+};
+
+const validarCampoSelect = (elemento, regla) => {
+    if (regla.required && elemento.selectedIndex === 0) {
+        return {
+            esValido: false,
+            mensaje: regla.mensaje
+        };
+    }
+
+    return { esValido: true };
+};
