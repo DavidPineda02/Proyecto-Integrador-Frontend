@@ -49,8 +49,28 @@ export function crearTarjetaTarea(nombreCompleto, iniciales, tareaCreada, estado
     divContenido.appendChild(textoDescripcion);
     divContenido.appendChild(divEstado);
 
+    const divFooter = document.createElement('div');
+    divFooter.className = 'message-card__footer';
+
+    const btnEditar = document.createElement('button');
+    btnEditar.className = 'btn-editar';
+    btnEditar.textContent = 'Editar';
+    btnEditar.setAttribute('data-id', tareaCreada.id);
+
+    const btnEliminar = document.createElement('button');
+    btnEliminar.className = 'btn-eliminar';
+    btnEliminar.setAttribute('data-id', tareaCreada.id);
+
+    const iconoEliminar = document.createElement('i');
+    iconoEliminar.classList.add('fa-solid', 'fa-trash');
+    btnEliminar.appendChild(iconoEliminar);
+
+    divFooter.appendChild(btnEditar);
+    divFooter.appendChild(btnEliminar);
+
     tarjetaTarea.appendChild(header);
     tarjetaTarea.appendChild(divContenido);
+    tarjetaTarea.appendChild(divFooter);
 
     return tarjetaTarea;
 }

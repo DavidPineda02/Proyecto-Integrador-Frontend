@@ -125,3 +125,57 @@
     line-height: 1.6;
     word-wrap: break-word;
 }
+
+.message-card__footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--color-gray-200);
+}
+
+.btn-editar {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    font-family: var(--font-family-base);
+    color: var(--color-primary);
+    background-color: var(--color-primary-lighter);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.btn-editar:hover {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.btn-eliminar {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-base);
+    color: var(--color-error);
+    background-color: transparent;
+    border: 1px solid var(--color-error);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.btn-eliminar i {
+    font-size: var(--font-size-xs);
+}
+
+.btn-eliminar:hover {
+    background-color: var(--color-error);
+    color: white;
+}
+
+.btn-eliminar:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
