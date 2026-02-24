@@ -1,5 +1,6 @@
-import { getOneUser, createTask } from './scripts/controllers/index.js';
-import { validar, obtenerClaseEstado, obtenerEtiquetaEstado, obtenerTextoFechaHoraActual, obtenerInicialesUsuario } from './scripts/js/index.js';
+import { getOneUser, createTask, deleteTask, patchTask } from './scripts/controllers/index.js';
+import { obtenerClaseEstado, obtenerEtiquetaEstado, obtenerTextoFechaHoraActual, obtenerInicialesUsuario } from './scripts/utils/index.js';
+import { validar } from './scripts/validations/index.js';
 import { crearContenidoModal, crearTarjetaTarea } from './scripts/components/index.js';
 
 export const urlAPI = 'http://localhost:3000';
@@ -24,13 +25,13 @@ const contadorTareas = document.querySelector('#tasksCount');
 
 const seccionFormularioTarea = document.querySelector('.task-form-section');
 const seccionListaTareas = document.querySelector('.tasks-section');
-const seccionBusqueda = document.querySelector('.search-section');
 
 const modalOverlay = document.querySelector('#feedbackModal');
 const modalContent = document.querySelector('#feedbackModalContent');
 
 let usuarioActual = null;
 let totalTareas = 0;
+let editandoId = null;
 
 const reglasBusqueda = {
     documento: { required: true, mensaje: 'Por favor ingrese un número de documento válido.' }
@@ -107,6 +108,73 @@ function limpiarFormularioDeTarea() {
     inputTituloTarea.classList.remove('error');
     inputEstadoTarea.classList.remove('error');
     inputDescripcionTarea.classList.remove('error');
+    if (editandoId) {
+        const btnDesbloquear = contenedorTareas.querySelector(`.btn-eliminar[data-id="${editandoId}"]`);
+        if (btnDesbloquear) {
+            btnDesbloquear.disabled = false;
+        }
+    }
+    editandoId = null;
+    botonGuardarTarea.querySelector('.task-form__btn-text').textContent = 'Agregar Tarea';
+}
+
+function cargarTareaEnFormulario(card) {
+    const titulo = card.querySelector('strong').textContent;
+    const contenido = card.querySelector('.message-card__content');
+    const nodos = contenido.childNodes;
+    let descripcion = '';
+
+    for (const nodo of nodos) {
+        if (nodo.nodeType === Node.TEXT_NODE && nodo.textContent.trim() !== '') {
+            descripcion = nodo.textContent.trim();
+            break;
+        }
+    }
+
+    const estadoTexto = card.querySelector('.message-card__status b').textContent;
+    let estadoValor = '';
+    if (estadoTexto === 'En Proceso') estadoValor = 'en-proceso';
+    if (estadoTexto === 'Incompleta') estadoValor = 'incompleta';
+    if (estadoTexto === 'Finalizada') estadoValor = 'finalizada';
+
+    inputTituloTarea.value = titulo;
+    inputDescripcionTarea.value = descripcion;
+    inputEstadoTarea.value = estadoValor;
+
+    const btnEliminarCard = card.querySelector('.btn-eliminar');
+    btnEliminarCard.disabled = true;
+
+    botonGuardarTarea.querySelector('.task-form__btn-text').textContent = 'Editar Tarea';
+    inputTituloTarea.focus();
+}
+
+async function eliminarTarea(taskId, card) {
+    card.classList.add('eliminando');
+
+    try {
+        await deleteTask(taskId);
+        card.remove();
+        totalTareas -= 1;
+        actualizarContador();
+
+        if (totalTareas === 0) {
+            estadoVacio.classList.remove('hidden');
+        }
+
+        // mostrarModalFeedback(
+        //     'success',
+        //     'Tarea Eliminada',
+        //     'La tarea ha sido eliminada correctamente.'
+        // );
+    } catch (error) {
+        card.classList.remove('eliminando');
+        console.error('Error al eliminar la tarea:', error);
+        // mostrarModalFeedback(
+        //     'error',
+        //     'Error al Eliminar',
+        //     'No se pudo eliminar la tarea. Verifique la conexión con el servidor.'
+        // );
+    }
 }
 
 function pintarTareaEnDOM(tareaCreada) {
@@ -217,24 +285,89 @@ function iniciarAplicacion() {
             return;
         }
 
-        try {
-            const nuevaTarea = await createTask({
-                userId: usuarioActual.id,
-                title: inputTituloTarea.value.trim(),
-                body: inputDescripcionTarea.value.trim(),
-                status: inputEstadoTarea.value
-            });
+        if (editandoId) {
+            try {
+                await patchTask(editandoId, {
+                    title: inputTituloTarea.value.trim(),
+                    body: inputDescripcionTarea.value.trim(),
+                    status: inputEstadoTarea.value
+                });
 
-            pintarTareaEnDOM(nuevaTarea);
-            limpiarFormularioDeTarea();
-            inputTituloTarea.focus();
-        } catch (error) {
-            console.error('Error al crear la tarea:', error);
-            mostrarModalFeedback(
-                'error',
-                'Error al Guardar',
-                'Error al guardar la tarea. Verifique la conexión con el servidor.'
-            );
+                const cardEditada = contenedorTareas.querySelector(`[data-id="${editandoId}"]`);
+                if (cardEditada) {
+                    const card = cardEditada.closest('.message-card');
+                    card.querySelector('strong').textContent = inputTituloTarea.value.trim();
+
+                    const contenido = card.querySelector('.message-card__content');
+                    for (const nodo of contenido.childNodes) {
+                        if (nodo.nodeType === Node.TEXT_NODE && nodo.textContent.trim() !== '') {
+                            nodo.textContent = inputDescripcionTarea.value.trim();
+                            break;
+                        }
+                    }
+
+                    const divEstado = card.querySelector('.message-card__status');
+                    divEstado.className = `message-card__status ${obtenerClaseEstado(inputEstadoTarea.value)}`;
+                    divEstado.querySelector('b').textContent = obtenerEtiquetaEstado(inputEstadoTarea.value);
+                }
+
+                limpiarFormularioDeTarea();
+                // mostrarModalFeedback(
+                //     'success',
+                //     'Tarea Actualizada',
+                //     'La tarea ha sido actualizada correctamente.'
+                // );
+            } catch (error) {
+                console.error('Error al actualizar la tarea:', error);
+                // mostrarModalFeedback(
+                //     'error',
+                //     'Error al Actualizar',
+                //     'No se pudo actualizar la tarea. Verifique la conexión con el servidor.'
+                // );
+            }
+        } else {
+            try {
+                const nuevaTarea = await createTask({
+                    userId: usuarioActual.id,
+                    title: inputTituloTarea.value.trim(),
+                    body: inputDescripcionTarea.value.trim(),
+                    status: inputEstadoTarea.value
+                });
+
+                pintarTareaEnDOM(nuevaTarea);
+                limpiarFormularioDeTarea();
+                inputTituloTarea.focus();
+            } catch (error) {
+                console.error('Error al crear la tarea:', error);
+                // mostrarModalFeedback(
+                //     'error',
+                //     'Error al Guardar',
+                //     'Error al guardar la tarea. Verifique la conexión con el servidor.'
+                // );
+            }
+        }
+    });
+
+    contenedorTareas.addEventListener('click', async (evento) => {
+        const btnEditar = evento.target.closest('.btn-editar');
+
+        if (btnEditar) {
+            const id = btnEditar.getAttribute('data-id');
+            const card = btnEditar.closest('.message-card');
+            editandoId = id;
+            cargarTareaEnFormulario(card);
+            return;
+        }
+
+        const btnEliminar = evento.target.closest('.btn-eliminar');
+
+        if (btnEliminar) {
+            const confirmado = confirm('¿Está seguro de que desea eliminar esta tarea?');
+            if (!confirmado) return;
+
+            const id = btnEliminar.getAttribute('data-id');
+            const card = btnEliminar.closest('.message-card');
+            await eliminarTarea(id, card);
         }
     });
 

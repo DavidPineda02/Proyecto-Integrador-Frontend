@@ -114,6 +114,14 @@
     font-size: var(--font-size-2xl);
 }
 
+.modal-content--success {
+    border: 2px solid var(--color-success);
+}
+
+.modal-content--error {
+    border: 2px solid var(--color-error);
+}
+
 .modal-content--success .modal-content__icon {
     background-color: #d1fae5;
     color: var(--color-success);
