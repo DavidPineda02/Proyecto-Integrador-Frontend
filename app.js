@@ -1,8 +1,6 @@
-import { getOneUser } from './scripts/get.js';
-import { createTask } from './scripts/post.js';
-import { esTextoValido, validarDatosDeTarea } from './scripts/js/validaciones.js';
-import { crearMarcadoParrafos } from './scripts/js/marcado.js';
-import { obtenerClaseEstado, obtenerEtiquetaEstado, obtenerTextoFechaHoraActual, obtenerInicialesUsuario } from './scripts/js/tareas.js';
+import { getOneUser, createTask } from './scripts/controllers/index.js';
+import { validar, obtenerClaseEstado, obtenerEtiquetaEstado, obtenerTextoFechaHoraActual, obtenerInicialesUsuario } from './scripts/js/index.js';
+import { crearContenidoModal, crearTarjetaTarea } from './scripts/components/index.js';
 
 export const urlAPI = 'http://localhost:3000';
 
@@ -28,8 +26,21 @@ const seccionFormularioTarea = document.querySelector('.task-form-section');
 const seccionListaTareas = document.querySelector('.tasks-section');
 const seccionBusqueda = document.querySelector('.search-section');
 
+const modalOverlay = document.querySelector('#feedbackModal');
+const modalContent = document.querySelector('#feedbackModalContent');
+
 let usuarioActual = null;
 let totalTareas = 0;
+
+const reglasBusqueda = {
+    documento: { required: true, mensaje: 'Por favor ingrese un número de documento válido.' }
+};
+
+const reglasTarea = {
+    titulo: { required: true, mensaje: 'El título de la tarea es obligatorio.' },
+    estado: { required: true, mensaje: 'Debe seleccionar un estado para la tarea.' },
+    descripcion: { required: true, mensaje: 'La descripción de la tarea es obligatoria.' }
+};
 
 function actualizarContador() {
     let textoContador = `${totalTareas} tarea`;
@@ -61,31 +72,31 @@ function mostrarSeccionesInferiores() {
     botonGuardarTarea.disabled = false;
 }
 
-function limpiarTarjetaFeedbackBusqueda() {
-    const tarjetaExistente = document.getElementById('userFeedbackCard');
-    if (tarjetaExistente) tarjetaExistente.remove();
+function cerrarModalFeedback() {
+    modalOverlay.classList.remove('modal-overlay--visible');
+    document.removeEventListener('keydown', manejarTeclaModal);
 }
 
-function mostrarTarjetaFeedback(tipo, titulo, texto, pista = '') {
-    limpiarTarjetaFeedbackBusqueda();
-
-    const tarjeta = document.createElement('div');
-    tarjeta.id = 'userFeedbackCard';
-    tarjeta.className = `feedback-card feedback-card--${tipo}`;
-
-    let pistaHTML = '';
-
-    if (pista) {
-        pistaHTML = `<p class="feedback-card__hint">${pista}</p>`;
+function manejarTeclaModal(evento) {
+    if (evento.key === 'Enter') {
+        evento.preventDefault();
+        cerrarModalFeedback();
     }
+}
 
-    tarjeta.innerHTML = `
-        <h3 class="feedback-card__title">${titulo}</h3>
-        ${crearMarcadoParrafos(texto)}
-        ${pistaHTML}
-    `;
+function mostrarModalFeedback(tipo, titulo, texto, pista = '') {
+    modalContent.className = `modal-content modal-content--${tipo}`;
+    modalContent.textContent = '';
 
-    seccionBusqueda.appendChild(tarjeta);
+    const fragmento = crearContenidoModal(tipo, titulo, texto, pista);
+    modalContent.appendChild(fragmento);
+
+    modalOverlay.classList.add('modal-overlay--visible');
+
+    const botonCerrar = document.getElementById('modalCloseBtn');
+    botonCerrar.addEventListener('click', cerrarModalFeedback);
+    document.addEventListener('keydown', manejarTeclaModal);
+    botonCerrar.focus();
 }
 
 function limpiarFormularioDeTarea() {
@@ -99,31 +110,13 @@ function limpiarFormularioDeTarea() {
 }
 
 function pintarTareaEnDOM(tareaCreada) {
-    const tarjetaTarea = document.createElement('div');
-    tarjetaTarea.className = 'message-card';
-
     const nombreCompleto = `${usuarioActual.firstName} ${usuarioActual.lastName}`;
     const iniciales = obtenerInicialesUsuario(nombreCompleto);
     const estadoClase = obtenerClaseEstado(tareaCreada.status);
     const estadoTexto = obtenerEtiquetaEstado(tareaCreada.status);
     const fechaHora = obtenerTextoFechaHoraActual();
 
-    tarjetaTarea.innerHTML = `
-        <div class="message-card__header">
-            <div class="message-card__user">
-                <div class="message-card__avatar">${iniciales}</div>
-                <span class="message-card__username">${nombreCompleto}</span>
-            </div>
-            <span class="message-card__timestamp">${fechaHora}</span>
-        </div>
-        <div class="message-card__content">
-            <strong>${tareaCreada.title}</strong><br>
-            ${tareaCreada.body}
-            <div class="message-card__status ${estadoClase}">
-                Estado: <b>${estadoTexto}</b>
-            </div>
-        </div>
-    `;
+    const tarjetaTarea = crearTarjetaTarea(nombreCompleto, iniciales, tareaCreada, estadoClase, estadoTexto, fechaHora);
 
     contenedorTareas.insertBefore(tarjetaTarea, contenedorTareas.firstChild);
     totalTareas += 1;
@@ -142,23 +135,28 @@ function iniciarAplicacion() {
         evento.preventDefault();
 
         errorDocumento.textContent = '';
-        limpiarTarjetaFeedbackBusqueda();
+        inputDocumento.classList.remove('error');
+        cerrarModalFeedback();
 
-        const documento = inputDocumento.value.trim();
+        const { valido, errores } = validar(formularioBusqueda, reglasBusqueda);
 
-        if (!esTextoValido(documento)) {
+        if (!valido) {
+            inputDocumento.classList.add('error');
+
             usuarioActual = null;
             ocultarSeccionesInferiores();
             limpiarFormularioDeTarea();
 
-            mostrarTarjetaFeedback(
+            mostrarModalFeedback(
                 'error',
                 'Error de Búsqueda',
-                'Por favor ingrese un número de documento válido.',
+                errores.documento || 'Dato inválido.',
                 'Por favor verifique el campo e intente nuevamente.'
             );
             return;
         }
+
+        const documento = inputDocumento.value.trim();
 
         try {
             const usuario = await getOneUser(documento);
@@ -167,20 +165,21 @@ function iniciarAplicacion() {
             mostrarSeccionesInferiores();
             inputTituloTarea.focus();
 
-            mostrarTarjetaFeedback(
+            mostrarModalFeedback(
                 'success',
                 'Usuario Verificado',
                 [
-                    `<strong>Nombre:</strong> ${usuario.firstName} ${usuario.lastName}`,
-                    `<strong>Email:</strong> ${usuario.email}`
+                    { etiqueta: 'Nombre:', valor: `${usuario.firstName} ${usuario.lastName}` },
+                    { etiqueta: 'Email:', valor: usuario.email }
                 ]
             );
         } catch {
             usuarioActual = null;
+            inputDocumento.classList.add('error');
             ocultarSeccionesInferiores();
             limpiarFormularioDeTarea();
 
-            mostrarTarjetaFeedback(
+            mostrarModalFeedback(
                 'error',
                 'Usuario No Encontrado',
                 'El número de documento ingresado no corresponde a ningún usuario registrado.',
@@ -193,35 +192,37 @@ function iniciarAplicacion() {
         evento.preventDefault();
         evento.stopPropagation();
 
-        const titulo = inputTituloTarea.value;
-        const estado = inputEstadoTarea.value;
-        const descripcion = inputDescripcionTarea.value;
+        inputTituloTarea.classList.remove('error');
+        inputEstadoTarea.classList.remove('error');
+        inputDescripcionTarea.classList.remove('error');
+        errorTituloTarea.textContent = '';
+        errorEstadoTarea.textContent = '';
+        errorDescripcionTarea.textContent = '';
 
-        const validacion = validarDatosDeTarea(titulo, descripcion, estado);
+        const { valido, errores } = validar(formularioTarea, reglasTarea);
 
-        errorTituloTarea.textContent = validacion.errorTitulo;
-        errorEstadoTarea.textContent = validacion.errorEstado || '';
-        errorDescripcionTarea.textContent = validacion.errorDescripcion;
-
-        inputTituloTarea.classList.toggle('error', Boolean(validacion.errorTitulo));
-        inputEstadoTarea.classList.toggle('error', Boolean(validacion.errorEstado));
-        inputDescripcionTarea.classList.toggle('error', Boolean(validacion.errorDescripcion));
-
-        if (!validacion.esValido) return;
-
-        /*
-        if (!usuarioActual) {
-            errorDocumento.textContent = 'Primero busque un usuario válido.';
+        if (!valido) {
+            if (errores.titulo) {
+                inputTituloTarea.classList.add('error');
+                errorTituloTarea.textContent = errores.titulo;
+            }
+            if (errores.estado) {
+                inputEstadoTarea.classList.add('error');
+                errorEstadoTarea.textContent = errores.estado;
+            }
+            if (errores.descripcion) {
+                inputDescripcionTarea.classList.add('error');
+                errorDescripcionTarea.textContent = errores.descripcion;
+            }
             return;
         }
-        */
 
         try {
             const nuevaTarea = await createTask({
                 userId: usuarioActual.id,
-                title: titulo.trim(),
-                body: descripcion.trim(),
-                status: estado
+                title: inputTituloTarea.value.trim(),
+                body: inputDescripcionTarea.value.trim(),
+                status: inputEstadoTarea.value
             });
 
             pintarTareaEnDOM(nuevaTarea);
@@ -229,7 +230,11 @@ function iniciarAplicacion() {
             inputTituloTarea.focus();
         } catch (error) {
             console.error('Error al crear la tarea:', error);
-            alert('Error al guardar la tarea. Verifique la conexión con el servidor.');
+            mostrarModalFeedback(
+                'error',
+                'Error al Guardar',
+                'Error al guardar la tarea. Verifique la conexión con el servidor.'
+            );
         }
     });
 

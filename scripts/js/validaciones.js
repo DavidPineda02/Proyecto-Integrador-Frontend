@@ -2,27 +2,68 @@ export function esTextoValido(texto) {
     return texto.trim().length > 0;
 }
 
-export function validarDatosDeTarea(titulo, descripcion, estado) {
-    let errorTitulo = '';
-    let errorDescripcion = '';
-    let errorEstado = '';
+export const validar = (form, reglas) => {
+    const errores = {};
+    let valido = true;
 
-    if (!esTextoValido(titulo)) {
-        errorTitulo = 'El título de la tarea es obligatorio.';
+    for (const name in reglas) {
+        const campo = form.elements[name];
+        const regla = reglas[name];
+
+        if (campo.type === 'text' || campo.type === 'textarea') {
+            const { esValido, mensaje } = validarCampoTexto(campo, regla);
+            if (!esValido) {
+                valido = false;
+                errores[name] = mensaje;
+            }
+        } else if (campo.type === 'select-one') {
+            const { esValido, mensaje } = validarCampoSelect(campo, regla);
+            if (!esValido) {
+                valido = false;
+                errores[name] = mensaje;
+            }
+        }
     }
 
-    if (!esTextoValido(estado)) {
-        errorEstado = 'Debe seleccionar un estado para la tarea.';
+    if (Object.keys(errores).length !== 0) {
+        valido = false;
     }
 
-    if (!esTextoValido(descripcion)) {
-        errorDescripcion = 'La descripción de la tarea es obligatoria.';
+    return { valido, errores };
+};
+
+const validarCampoTexto = (elemento, regla) => {
+    if (regla.required && elemento.value.trim() === '') {
+        return {
+            esValido: false,
+            mensaje: regla.mensaje
+        };
     }
 
-    return {
-        errorTitulo,
-        errorEstado,
-        errorDescripcion,
-        esValido: !errorTitulo && !errorEstado && !errorDescripcion
-    };
-}
+    if (regla.required && regla.min && regla.min > elemento.value.trim().length) {
+        return {
+            esValido: false,
+            mensaje: `El campo debe tener como mínimo ${regla.min} caracteres.`
+        };
+    }
+
+    if (regla.required && regla.max && regla.max < elemento.value.trim().length) {
+        return {
+            esValido: false,
+            mensaje: `El campo debe tener como máximo ${regla.max} caracteres.`
+        };
+    }
+
+    return { esValido: true };
+};
+
+const validarCampoSelect = (elemento, regla) => {
+    if (regla.required && elemento.selectedIndex === 0) {
+        return {
+            esValido: false,
+            mensaje: regla.mensaje
+        };
+    }
+
+    return { esValido: true };
+};

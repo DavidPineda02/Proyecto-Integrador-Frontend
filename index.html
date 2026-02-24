@@ -26,7 +26,7 @@
                         <label for="userName" class="form-search__label">
                             Numero de Documento del usuario
                         </label>
-                        <input type="text" id="userDocument" class="form-search__input"
+                        <input type="text" id="userDocument" name="documento" class="form-search__input"
                             placeholder="Ingresa tu número de documento" aria-required="true">
                         <span class="form-search__error" id="userDocumentError"></span>
                     </div>
@@ -49,7 +49,7 @@
                         <label for="taskName" class="task-form__label">
                             Nombre de la Tarea
                         </label>
-                        <input type="text" id="taskName" class="task-form__input"
+                        <input type="text" id="taskName" name="titulo" class="task-form__input"
                             placeholder="Ingresa el nombre de la tarea" aria-required="true">
                         <span class="task-form__error" id="taskNameError"></span>
                     </div>
@@ -58,7 +58,7 @@
                         <label for="taskStatus" class="task-form__label">
                             Estado de la Tarea
                         </label>
-                        <select id="taskStatus" class="task-form__select" aria-required="true">
+                        <select id="taskStatus" name="estado" class="task-form__select" aria-required="true">
                             <option value="">Selecciona un estado</option>
                             <option value="en-proceso">En Proceso</option>
                             <option value="incompleta">Incompleta</option>
@@ -71,7 +71,7 @@
                         <label for="taskDescription" class="task-form__label">
                             Descripcion de la Tarea
                         </label>
-                        <textarea id="taskDescription" class="task-form__input task-form__textarea"
+                        <textarea id="taskDescription" name="descripcion" class="task-form__input task-form__textarea"
                             placeholder="Escribe la descripción de la tarea aquí..." rows="4"
                             aria-required="true"></textarea>
                         <span class="task-form__error" id="taskDescriptionError"></span>
@@ -111,7 +111,13 @@
         </footer>
     </div>
 
-    <script type="module" src="script.js"></script>
+    <!-- Modal de feedback -->
+    <div class="modal-overlay" id="feedbackModal">
+        <div class="modal-content" id="feedbackModalContent">
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
 </body>
 
 </html>
