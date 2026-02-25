@@ -1,5 +1,5 @@
 // Importamos la URL base de la API desde el archivo principal
-import { urlAPI } from "../../../app.js";
+import { urlAPI } from "../../app.js";
 
 /**
  * Elimina una tarea por su ID
