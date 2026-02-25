@@ -1,7 +1,7 @@
-import { getOneUser, createTask, deleteTask, patchTask } from './scripts/controllers/index.js';
-import { obtenerClaseEstado, obtenerEtiquetaEstado, obtenerTextoFechaHoraActual, obtenerInicialesUsuario } from './scripts/utils/index.js';
-import { validar } from './scripts/validations/index.js';
-import { crearContenidoModal, crearTarjetaTarea } from './scripts/components/index.js';
+import { getOneUser, createTask, deleteTask, patchTask } from './api/index.js';
+import { obtenerClaseEstado, obtenerEtiquetaEstado, obtenerTextoFechaHoraActual, obtenerInicialesUsuario } from './services/index.js';
+import { validar } from './utils/index.js';
+import { crearContenidoModal, crearTarjetaTarea } from './ui/index.js';
 
 export const urlAPI = 'http://localhost:3000';
 
