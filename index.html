@@ -96,6 +96,51 @@
                 <span class="tasks-header__count" id="tasksCount">0 tareas</span>
             </div>
 
+            <!-- RF01: Filtros avanzados | RF02: Ordenamiento dinámico | RF04: Exportación -->
+            <div class="tareas-controles" id="tareasControles">
+                <div class="controles-filtros">
+                    <!-- RF01: Filtro por estado -->
+                    <div class="filtro-grupo">
+                        <span class="filtro-label">Estado</span>
+                        <div class="filtro-botones" id="filtroEstadoBotones">
+                            <button class="btn-filtro btn-filtro--activo" data-estado="">Todos</button>
+                            <button class="btn-filtro" data-estado="incompleta">Pendiente</button>
+                            <button class="btn-filtro" data-estado="en-proceso">En Proceso</button>
+                            <button class="btn-filtro" data-estado="finalizada">Completada</button>
+                        </div>
+                    </div>
+                    <!-- RF01: Filtro por usuario -->
+                    <div class="filtro-grupo">
+                        <label for="filtroUsuario" class="filtro-label">Usuario</label>
+                        <div class="filtro-input-wrapper">
+                            <i class="fa-solid fa-magnifying-glass filtro-input-icon"></i>
+                            <input type="text" id="filtroUsuario" class="filtro-input"
+                                placeholder="Buscar por usuario o título...">
+                        </div>
+                    </div>
+                </div>
+                <div class="controles-secundarios">
+                    <!-- RF02: Ordenamiento dinámico -->
+                    <div class="controles-orden">
+                        <label for="ordenCampo" class="filtro-label">Ordenar</label>
+                        <select id="ordenCampo" class="filtro-select">
+                            <option value="fecha">Fecha de creación</option>
+                            <option value="nombre">Nombre</option>
+                            <option value="estado">Estado</option>
+                        </select>
+                        <button id="ordenDireccion" class="btn-orden" data-direccion="desc"
+                            title="Cambiar dirección de orden">
+                            <i class="fa-solid fa-sort-down"></i>
+                        </button>
+                    </div>
+                    <!-- RF04: Exportación de tareas -->
+                    <button id="exportarBtn" class="btn-exportar">
+                        <i class="fa-solid fa-file-export"></i>
+                        Exportar JSON
+                    </button>
+                </div>
+            </div>
+
             <div id="tasksContainer" class="tasks-container">
                 <!-- Las tareas se agregarán aquí dinámicamente -->
                 <div class="tasks-empty" id="emptyState">

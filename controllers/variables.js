@@ -36,7 +36,21 @@ export const selectores = {
 export const estado = {
     usuarioActual: null,
     totalTareas: 0,
-    editandoId: null
+    editandoId: null,
+    // RF01/RF02: Array de tareas en memoria (fuente de verdad para filtros y sort)
+    tareas: [],
+    // RF01/RF02: Tareas actualmente visibles tras aplicar filtros (usada por RF04)
+    tareasVisibles: [],
+    // RF01: Filtros activos
+    filtros: {
+        estado: '',
+        texto: ''
+    },
+    // RF02: Ordenamiento activo
+    ordenamiento: {
+        campo: 'fecha',
+        direccion: 'desc'
+    }
 };
 
 // =============================================================================
