@@ -1,5 +1,5 @@
 // Importamos la URL base de la API desde el archivo principal
-import { urlAPI } from "../../../app.js";
+import { urlAPI } from "../../config/index.js";
 
 /**
  * Actualiza parcialmente una tarea por su ID

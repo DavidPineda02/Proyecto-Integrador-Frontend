@@ -22,7 +22,7 @@
             <div class="card-search">
                 <h2 class="card-search__title">Buscar Usuario</h2>
 
-                <form id="searchForm" class="form-search" novalidate>
+                <form id="searchForm" class="form-search" method="POST" novalidate>
                     <div class="form-search__group">
                         <label for="userName" class="form-search__label">
                             Numero de Documento del usuario
@@ -45,7 +45,7 @@
             <div class="task-card">
                 <h2 class="task-card__title">Nueva Tarea</h2>
 
-                <form id="taskForm" class="task-form" novalidate>
+                <form id="taskForm" class="task-form" method="POST" novalidate>
                     <div class="task-form__group">
                         <label for="taskName" class="task-form__label">
                             Nombre de la Tarea
@@ -74,7 +74,10 @@
                         </label>
                         <textarea id="taskDescription" name="descripcion" class="task-form__input task-form__textarea"
                             placeholder="Escribe la descripción de la tarea aquí..." rows="4"
-                            aria-required="true"></textarea>
+                            maxlength="200" aria-required="true"></textarea>
+                        <div class="task-form__char-counter">
+                            <span id="charCount">0</span> / 200 caracteres
+                        </div>
                         <span class="task-form__error" id="taskDescriptionError"></span>
                     </div>
 

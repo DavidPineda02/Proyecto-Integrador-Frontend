@@ -33,21 +33,27 @@ export const validar = (form, reglas) => {
 };
 
 const validarCampoTexto = (elemento, regla) => {
-    if (regla.required && elemento.value.trim() === '') {
+    const valor = elemento.type === 'number' ? String(elemento.value) : elemento.value.trim();
+
+    if (regla.required && valor === '') {
         return {
             esValido: false,
             mensaje: regla.mensaje
         };
     }
 
-    if (regla.required && regla.min && regla.min > elemento.value.trim().length) {
+    if (!valor && valor !== '0') {
+        return { esValido: true };
+    }
+
+    if (regla.min && regla.min > valor.length) {
         return {
             esValido: false,
             mensaje: regla.mensajeMin || `El campo debe tener como mínimo ${regla.min} caracteres.`
         };
     }
 
-    if (regla.required && regla.max && regla.max < elemento.value.trim().length) {
+    if (regla.max && regla.max < valor.length) {
         return {
             esValido: false,
             mensaje: regla.mensajeMax || `El campo debe tener como máximo ${regla.max} caracteres.`

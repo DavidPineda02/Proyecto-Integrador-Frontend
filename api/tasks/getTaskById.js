@@ -1,5 +1,5 @@
 // Importamos la URL base de la API desde el archivo principal
-import { urlAPI } from "../../../app.js";
+import { urlAPI } from "../../config/index.js";
 
 /**
  * Obtiene un usuario por su número de documento (ID)
