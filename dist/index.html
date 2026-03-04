@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Tareas - Ejercicio DOM</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script type="module" crossorigin src="/assets/index-CC8mU3mI.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-jKFuuIrq.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Encabezado principal -->
+        <header class="header">
+            <h1 class="header__title">Registro de Tareas</h1>
+            <p class="header__subtitle">Practica la manipulación del DOM en tiempo real</p>
+        </header>
+
+        <!-- Busqueda usuario -->
+        <section class="search-section">
+            <div class="card-search">
+                <h2 class="card-search__title">Buscar Usuario</h2>
+
+                <form id="searchForm" class="form-search" method="POST" novalidate>
+                    <div class="form-search__group">
+                        <label for="userName" class="form-search__label">
+                            Numero de Documento del usuario
+                        </label>
+                        <input type="number" id="userDocument" name="documento" class="form-search__input"
+                            placeholder="Ingresa tu número de documento" aria-required="true">
+                        <span class="form-search__error" id="userDocumentError"></span>
+                    </div>
+
+                    <button type="submit" class="btn-search btn--primary" id="searchBtn">
+                        <span class="btn-search__text">Buscar usuario</span>
+                        <span class="btn-search__icon">➤</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Formulario de entrada -->
+        <section class="task-form-section">
+            <div class="task-card">
+                <h2 class="task-card__title">Nueva Tarea</h2>
+
+                <form id="taskForm" class="task-form" method="POST" novalidate>
+                    <div class="task-form__group">
+                        <label for="taskName" class="task-form__label">
+                            Nombre de la Tarea
+                        </label>
+                        <input type="text" id="taskName" name="titulo" class="task-form__input"
+                            placeholder="Ingresa el nombre de la tarea" aria-required="true">
+                        <span class="task-form__error" id="taskNameError"></span>
+                    </div>
+
+                    <div class="task-form__group">
+                        <label for="taskStatus" class="task-form__label">
+                            Estado de la Tarea
+                        </label>
+                        <select id="taskStatus" name="estado" class="task-form__select" aria-required="true">
+                            <option value="">Selecciona un estado</option>
+                            <option value="en-proceso">En Proceso</option>
+                            <option value="incompleta">Incompleta</option>
+                            <option value="finalizada">Finalizada</option>
+                        </select>
+                        <span class="task-form__error" id="taskStatusError"></span>
+                    </div>
+
+                    <div class="task-form__group">
+                        <label for="taskDescription" class="task-form__label">
+                            Descripcion de la Tarea
+                        </label>
+                        <textarea id="taskDescription" name="descripcion" class="task-form__input task-form__textarea"
+                            placeholder="Escribe la descripción de la tarea aquí..." rows="4"
+                            maxlength="200" aria-required="true"></textarea>
+                        <div class="task-form__char-counter">
+                            <span id="charCount">0</span> / 200 caracteres
+                        </div>
+                        <span class="task-form__error" id="taskDescriptionError"></span>
+                    </div>
+
+                    <button type="submit" class="task-form__btn task-form__btn--primary" id="submitBtn">
+                        <span class="task-form__btn-text">Agregar Tarea</span>
+                        <span class="task-form__btn-icon">➤</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Área de tareas -->
+        <section class="tasks-section">
+            <div class="tasks-header">
+                <h2 class="tasks-header__title">Tareas Publicadas</h2>
+                <span class="tasks-header__count" id="tasksCount">0 tareas</span>
+            </div>
+
+            <!-- RF01: Filtros avanzados | RF02: Ordenamiento dinámico | RF04: Exportación -->
+            <div class="tareas-controles" id="tareasControles">
+                <div class="controles-filtros">
+                    <!-- RF01: Filtro por estado -->
+                    <div class="filtro-grupo">
+                        <span class="filtro-label">Estado</span>
+                        <div class="filtro-botones" id="filtroEstadoBotones">
+                            <button class="btn-filtro btn-filtro--activo" data-estado="">Todos</button>
+                            <button class="btn-filtro" data-estado="incompleta">Pendiente</button>
+                            <button class="btn-filtro" data-estado="en-proceso">En Proceso</button>
+                            <button class="btn-filtro" data-estado="finalizada">Completada</button>
+                        </div>
+                    </div>
+                    <!-- RF01: Filtro por usuario -->
+                    <div class="filtro-grupo">
+                        <label for="filtroUsuario" class="filtro-label">Usuario</label>
+                        <div class="filtro-input-wrapper">
+                            <i class="fa-solid fa-magnifying-glass filtro-input-icon"></i>
+                            <input type="text" id="filtroUsuario" class="filtro-input"
+                                placeholder="Buscar por usuario o título...">
+                        </div>
+                    </div>
+                </div>
+                <div class="controles-secundarios">
+                    <!-- RF02: Ordenamiento dinámico -->
+                    <div class="controles-orden">
+                        <label for="ordenCampo" class="filtro-label">Ordenar</label>
+                        <select id="ordenCampo" class="filtro-select">
+                            <option value="fecha">Fecha de creación</option>
+                            <option value="nombre">Nombre</option>
+                            <option value="estado">Estado</option>
+                        </select>
+                        <button id="ordenDireccion" class="btn-orden" data-direccion="desc"
+                            title="Cambiar dirección de orden">
+                            <i class="fa-solid fa-sort-down"></i>
+                        </button>
+                    </div>
+                    <!-- RF04: Exportación de tareas -->
+                    <button id="exportarBtn" class="btn-exportar">
+                        <i class="fa-solid fa-file-export"></i>
+                        Exportar JSON
+                    </button>
+                </div>
+            </div>
+
+            <div id="tasksContainer" class="tasks-container">
+                <!-- Las tareas se agregarán aquí dinámicamente -->
+                <div class="tasks-empty" id="emptyState">
+                    <svg class="tasks-empty__icon" width="64" height="64" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <p class="tasks-empty__text">Aún no hay tareas</p>
+                    <p class="tasks-empty__subtext">Completa el formulario para agregar tu primera tarea</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer informativo -->
+        <footer class="footer">
+            <p class="footer__text">Ejercicio de manipulación del DOM | SENA - Desarrollo Web</p>
+        </footer>
+    </div>
+
+    <!-- Modal de feedback -->
+    <div class="modal-overlay" id="feedbackModal">
+        <div class="modal-content" id="feedbackModalContent">
+        </div>
+    </div>
+
+</body>
+
+</html>
