@@ -12,6 +12,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "sweetalert2": "^11.26.21"
+  },
   "devDependencies": {
     "vite": "^7.3.1"
   }
